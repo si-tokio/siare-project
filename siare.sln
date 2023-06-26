@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "siare.Client", "siare\Clien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "siare.Shared", "siare\Shared\siare.Shared.csproj", "{A87E56E9-80CA-4672-8712-E3F712163287}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "siare.Test", "siare.Test\siare.Test.csproj", "{69D37999-4013-4644-8719-BD1CC4DEA9EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{A87E56E9-80CA-4672-8712-E3F712163287}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A87E56E9-80CA-4672-8712-E3F712163287}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A87E56E9-80CA-4672-8712-E3F712163287}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69D37999-4013-4644-8719-BD1CC4DEA9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69D37999-4013-4644-8719-BD1CC4DEA9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69D37999-4013-4644-8719-BD1CC4DEA9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69D37999-4013-4644-8719-BD1CC4DEA9EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

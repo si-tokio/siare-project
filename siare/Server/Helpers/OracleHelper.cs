@@ -9,6 +9,11 @@ namespace siare.Server.Helpers
   /// </summary>
   public static class OracleHelper
   {
+    static OracleHelper()
+    {
+      DefaultTypeMap.MatchNamesWithUnderscores = true;
+    }
+
     /// <summary>
     /// 接続文字列取得処理
     /// </summary>
@@ -16,7 +21,7 @@ namespace siare.Server.Helpers
     private static string GetConnectionString()
     {
 #if DEBUG
-      return $"user id=si_are;password=si_are;data source=xepdb1";
+      return $"user id=si_are;password=si_are;data source=localhost/xepdb1";
 #else
       var password = EncryptHelper.Decrypt(Shared.DB.DbPass, Shared.Secret.PrivateKey);
       return $"user id={Shared.DB.DbUser};password={password};data source={Shared.DB.DbHost}";
