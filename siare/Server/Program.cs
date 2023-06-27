@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using siare.Server.Repositories.Oracle.Users;
 
 namespace siare
 {
@@ -9,6 +10,7 @@ namespace siare
       var builder = WebApplication.CreateBuilder(args);
 
       // Add services to the container.
+      builder.Services.AddScoped<IUserRepository, UserRepository>();
 
       builder.Services.AddControllersWithViews();
       builder.Services.AddRazorPages();
