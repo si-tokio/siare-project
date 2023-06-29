@@ -11,12 +11,17 @@
   <DataAnnotationsValidator />
   <ValidationSummary />
 
+  <label for="userid">User ID:</label>
   <InputNumber id="userid" @bind-Value="newUser.UserId" class="form-control" placeholder="Userid" />
+  <label for="username">Username:</label>
   <InputText id="username" @bind-Value="newUser.Username" class="form-control" placeholder="Username" />
+  <label for="password">Password:</label>
   <InputText id="password" @bind-Value="newUser.PasswordHash" type="password" class="form-control" placeholder="Password" />
+  <label for="email">Email:</label>
   <InputText id="email" @bind-Value="newUser.Email" type="email" class="form-control" placeholder="Email" />
 
   <button type="submit" class="btn btn-primary">Create User</button>
+  <button class="btn btn-secondary" @onclick="GoBack">Go Back</button>
 </EditForm>
 
 @code {
@@ -45,5 +50,10 @@
     {
       errorMessage = $"Exception caught: {ex.Message}";
     }
+  }
+
+  private void GoBack()
+  {
+    NavigationManager.NavigateTo("/users");
   }
 }

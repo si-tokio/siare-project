@@ -32,7 +32,7 @@ VALUES(
 
     public Task<int> DeleteUserAsync(int id)
     {
-      var result = OracleHelper.Execute($"DELETE FROM users WHERE user_id = :{id}", id);
+      var result = OracleHelper.Execute($"DELETE FROM users WHERE user_id = :{nameof(id)}", new { id });
       return Task.FromResult(result);
     }
 
