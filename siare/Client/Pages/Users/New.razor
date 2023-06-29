@@ -1,0 +1,49 @@
+﻿@page "/users/new"
+@using siare.Shared.Entities
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h1>New User</h1>
+
+<p>@errorMessage</p>
+
+<EditForm Model="@newUser" OnValidSubmit="HandleValidSubmit">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <InputNumber id="userid" @bind-Value="newUser.UserId" class="form-control" placeholder="Userid" />
+  <InputText id="username" @bind-Value="newUser.Username" class="form-control" placeholder="Username" />
+  <InputText id="password" @bind-Value="newUser.PasswordHash" type="password" class="form-control" placeholder="Password" />
+  <InputText id="email" @bind-Value="newUser.Email" type="email" class="form-control" placeholder="Email" />
+
+  <button type="submit" class="btn btn-primary">Create User</button>
+</EditForm>
+
+@code {
+  private User newUser = new User() { Username = "", PasswordHash = "", Email = "" };
+  private string errorMessage = "";
+
+  private async Task HandleValidSubmit()
+  {
+    try
+    {
+      var response = await Http.PostAsJsonAsync("api/Users", newUser);
+      if (response.IsSuccessStatusCode)
+      {
+        NavigationManager.NavigateTo("/users");
+      }
+      else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+      {
+        errorMessage = "There was an issue with your submission. Please check the data and try again.";
+      }
+      else
+      {
+        errorMessage = "An unexpected error occurred.";
+      }
+    }
+    catch (Exception ex)
+    {
+      errorMessage = $"Exception caught: {ex.Message}";
+    }
+  }
+}

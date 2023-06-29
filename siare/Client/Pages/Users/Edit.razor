@@ -1,0 +1,68 @@
+﻿@page "/users/edit/{UserId}"
+@using siare.Shared.Entities
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h1>Edit User</h1>
+
+@if (user == null)
+{
+  <p><em>Loading...</em></p>
+}
+else if (errorMessage != null)
+{
+  <p><em>Error: @errorMessage</em></p>
+}
+else
+{
+  <EditForm Model="@user" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputNumber id="userid" @bind-Value="@user.UserId" disabled />
+    <InputText id="username" @bind-Value="@user.Username" />
+    <!-- Omit password and salt fields -->
+    <InputText id="email" @bind-Value="@user.Email" />
+    <button type="submit">Update</button>
+  </EditForm>
+}
+
+@code {
+  [Parameter]
+  public string? UserId { get; set; }
+
+  private User? user;
+  private string? errorMessage;
+
+  protected override async Task OnInitializedAsync()
+  {
+    user = await Http.GetFromJsonAsync<User>($"api/Users/{UserId}");
+  }
+
+  private async Task HandleValidSubmit()
+  {
+    try
+    {
+      var response = await Http.PutAsJsonAsync($"api/Users/{user?.UserId}", user);
+      if (response.IsSuccessStatusCode)
+      {
+        // Redirect to users list or show success message
+        NavigationManager.NavigateTo("/users");
+      }
+      else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+      {
+        // Show bad request error message
+        errorMessage = "Bad Request Error. Please check your input.";
+      }
+      else
+      {
+        // Show other error messages
+        errorMessage = "Error updating the user. Please try again later.";
+      }
+    }
+    catch (Exception ex)
+    {
+      // Handle other errors
+      errorMessage = $"Exception: {ex.Message}";
+    }
+  }
+}

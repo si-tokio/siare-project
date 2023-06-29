@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using siare.Server.Helpers;
+using siare.Server.Repositories.Oracle.Users;
 using siare.Shared.Entities;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace siare.Server.Controllers
 {
@@ -9,50 +9,114 @@ namespace siare.Server.Controllers
   [ApiController]
   public class UsersController : ControllerBase
   {
-    private static readonly List<User> Users = new List<User>
+    private readonly ILogger<UsersController> _logger;
+    private readonly IUserRepository _userRepository;
+
+    public UsersController(ILogger<UsersController> logger, IUserRepository userRepository)
     {
-        new User { UserId = 1, Username = "User1", PasswordHash = "password1", Email = "user1@example.com" },
-        new User { UserId = 2, Username = "User2", PasswordHash = "password2", Email = "user2@example.com" },
-        // Add more users if needed
-    };
+      _logger = logger;
+      _userRepository = userRepository;
+    }
 
     // GET: api/Users
     [HttpGet]
-    public ActionResult<IEnumerable<User>> Get()
+    public async Task<ActionResult<IEnumerable<User>>> Get()
     {
-      return Ok(Users);
+      try
+      {
+        var users = await _userRepository.GetUsersAsync();
+        return Ok(users);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex.Message);
+        return StatusCode(500);
+      }
     }
 
     // GET api/Users/5
     [HttpGet("{id}")]
-    public ActionResult<User> Get(int id)
+    public async Task<ActionResult<User>> Get(int id)
     {
-      var user = Users.FirstOrDefault(u => u.UserId == id);
-
-      if (user == null)
+      try
       {
-        return NotFound();
-      }
+        var user = await _userRepository.GetUserByIdAsync(id);
 
-      return Ok(user);
+        if (user == null)
+        {
+          return NotFound();
+        }
+
+        return Ok(user);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex.Message);
+        return StatusCode(500);
+      }
     }
 
     // POST api/<UsersController>
     [HttpPost]
-    public void Post([FromBody] string value)
+    public async Task<ActionResult> Post([FromBody] User user)
     {
+      try
+      {
+        if (!ModelState.IsValid)
+        {
+          return BadRequest(ModelState);
+        }
+        SetHashPassword(user);
+        var addedUser = await _userRepository.CreateUserAsync(user);
+        return CreatedAtAction(nameof(Get), new { id = addedUser.UserId }, addedUser);
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex.Message);
+        return StatusCode(500);
+      }
+    }
+
+    private static void SetHashPassword(User user)
+    {
+      user.Salt = HashHelper.GenerateSalt();
+      user.PasswordHash = HashHelper.HashPassword(user.PasswordHash, user.Salt);
     }
 
     // PUT api/<UsersController>/5
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public async Task<ActionResult> Put(int id, [FromBody] User user)
     {
+      try
+      {
+        if (!ModelState.IsValid)
+        {
+          return BadRequest(ModelState);
+        }
+        var updatedUser = await _userRepository.UpdateUserAsync(user);
+        return NoContent();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex.Message);
+        return StatusCode(500);
+      }
     }
 
     // DELETE api/<UsersController>/5
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task<ActionResult> DeleteAsync(int id)
     {
+      try
+      {
+        var deleted = await _userRepository.DeleteUserAsync(id);
+        return NoContent();
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex.Message);
+        return StatusCode(500);
+      }
     }
   }
 }
