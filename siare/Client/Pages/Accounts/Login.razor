@@ -1,0 +1,57 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations;
+@using siare.Shared.Entities;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h1>Login</h1>
+
+<EditForm Model="@loginUser" OnValidSubmit="LoginExecute">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+
+  <div class="form-group">
+    <label for="userid">User Id:</label>
+    <InputNumber id="userid" @bind-Value="@loginUser.UserId" class="form-control" placeholder="User id" />
+  </div>
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <InputText id="password" @bind-Value="@loginUser.PasswordHash" class="form-control" placeholder="Password" type="password" />
+  </div>
+
+  <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+<p>@loginResult</p>
+
+@code {
+  private User loginUser = new User();
+
+  private string loginResult = "";
+
+  private async Task LoginExecute()
+  {
+    // TODO: Implement the actual login logic here
+    // This is where you would call your backend service, check the user credentials, and handle the response
+
+    // For example:
+    var response = await Http.PostAsJsonAsync("api/Accounts/login", loginUser);
+    if (response.IsSuccessStatusCode)
+    {
+      NavigationManager.NavigateTo("/");
+    }
+    else
+    {
+      loginResult = "Invalid user id or password";
+    }
+  }
+
+  class User
+  {
+    [Required, Range(1, 99999)]
+    public int UserId { get; set; }
+
+    [Required]
+    public string? PasswordHash { get; set; }
+  }
+}
