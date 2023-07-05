@@ -20,12 +20,11 @@ namespace siare.Server.Helpers
     /// <returns>接続文字列</returns>
     private static string GetConnectionString()
     {
-#if DEBUG
-      return $"user id=si_are;password=si_are;data source=localhost/xepdb1";
-#else
-      var password = EncryptHelper.Decrypt(Shared.DB.DbPass, Shared.Secret.PrivateKey);
-      return $"user id={Shared.DB.DbUser};password={password};data source={Shared.DB.DbHost}";
-#endif
+      var user = Environment.GetEnvironmentVariable("DB_USER") ?? "default_user";
+      var pass = Environment.GetEnvironmentVariable("DB_PASS") ?? "default_pass";
+      var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost/xepdb1";
+
+      return $"user id={user};password={pass};data source={host}";
     }
 
     /// <summary>
