@@ -30,12 +30,12 @@ namespace siare.Server.Helpers
     /// <summary>
     /// 検索１件（条件なし）
     /// </summary>
-    public static TReturn GetOne<TReturn>(string sql) => GetOne<TReturn, object>(sql, null);
+    public static Task<TReturn> GetOneAsync<TReturn>(string sql) => GetOneAsync<TReturn, object>(sql, null);
 
     /// <summary>
     /// 検索１件（条件付き）
     /// </summary>
-    public static TReturn GetOne<TReturn, TParameter>(string sql, TParameter? parameter)
+    public static async Task<TReturn> GetOneAsync<TReturn, TParameter>(string sql, TParameter? parameter)
     {
       TReturn result;
 
@@ -43,8 +43,8 @@ namespace siare.Server.Helpers
       {
         try
         {
-          con.Open();
-          result = con.QueryFirstOrDefault<TReturn>(sql, parameter);
+          await con.OpenAsync();
+          result = await con.QueryFirstOrDefaultAsync<TReturn>(sql, parameter);
         }
         catch
         {
@@ -52,7 +52,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
 
@@ -62,12 +62,12 @@ namespace siare.Server.Helpers
     /// <summary>
     /// 検索複数件（条件なし）
     /// </summary>
-    public static List<TReturn> Get<TReturn>(string sql) => Get<TReturn, object>(sql, null);
+    public static Task<List<TReturn>> GetAsync<TReturn>(string sql) => GetAsync<TReturn, object>(sql, null);
 
     /// <summary>
     /// 検索複数件（条件付き）
     /// </summary>
-    public static List<TReturn> Get<TReturn, TParameter>(string sql, TParameter? parameter)
+    public static async Task<List<TReturn>> GetAsync<TReturn, TParameter>(string sql, TParameter? parameter)
     {
       List<TReturn> result;
 
@@ -75,8 +75,9 @@ namespace siare.Server.Helpers
       {
         try
         {
-          con.Open();
-          result = con.Query<TReturn>(sql, parameter).ToList();
+          await con.OpenAsync();
+          var r = await con.QueryAsync<TReturn>(sql, parameter);
+          result = r.ToList();
         }
         catch
         {
@@ -84,7 +85,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
 
@@ -94,7 +95,7 @@ namespace siare.Server.Helpers
     /// <summary>
     /// SQL実行（パラメータなし）
     /// </summary>
-    public static int Execute(string sql)
+    public static async Task<int> ExecuteAsync(string sql)
     {
       int result = 0;
 
@@ -102,8 +103,8 @@ namespace siare.Server.Helpers
       {
         try
         {
-          con.Open();
-          result = con.Execute(sql);
+          await con.OpenAsync();
+          result = await con.ExecuteAsync(sql);
         }
         catch (Exception ex)
         {
@@ -111,7 +112,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
 
@@ -121,16 +122,16 @@ namespace siare.Server.Helpers
     /// <summary>
     /// SQL実行
     /// </summary>
-    public static int Execute<T>(string sql, T parameter)
+    public static async Task<int> ExecuteAsync<T>(string sql, T parameter)
     {
       List<T> p = new List<T> { parameter };
-      return Execute<T>(sql, p);
+      return await ExecuteAsync<T>(sql, p);
     }
 
     /// <summary>
     /// SQL実行（複数回）
     /// </summary>
-    public static int Execute<T>(string sql, IEnumerable<T> parameters)
+    public static async Task<int> ExecuteAsync<T>(string sql, IEnumerable<T> parameters)
     {
       int result = 0;
 
@@ -138,16 +139,16 @@ namespace siare.Server.Helpers
       {
         try
         {
-          con.Open();
+          await con.OpenAsync();
           if (parameters == null)
           {
-            result = con.Execute(sql);
+            result = await con.ExecuteAsync(sql);
           }
           else
           {
             foreach (var parameter in parameters)
             {
-              result += con.Execute(sql, parameter);
+              result += await con.ExecuteAsync(sql, parameter);
             }
           }
         }
@@ -157,7 +158,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
 
@@ -167,7 +168,7 @@ namespace siare.Server.Helpers
     /// <summary>
     /// SQL実行（複数レコードを一括で）
     /// </summary>
-    public static int Execute(string sql, List<OracleParameter> parameters, int arrayBindCount)
+    public static async Task<int> ExecuteAsync(string sql, List<OracleParameter> parameters, int arrayBindCount)
     {
       int result = 0;
 
@@ -176,11 +177,11 @@ namespace siare.Server.Helpers
       {
         try
         {
-          con.Open();
+          await con.OpenAsync();
           cmd.ArrayBindCount = arrayBindCount;
           cmd.BindByName = true;
           cmd.Parameters.AddRange(parameters.ToArray());
-          result = cmd.ExecuteNonQuery();
+          result = await cmd.ExecuteNonQueryAsync();
         }
         catch (Exception ex)
         {
@@ -188,7 +189,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
 
@@ -198,14 +199,14 @@ namespace siare.Server.Helpers
     /// <summary>
     /// ストアド実行
     /// </summary>
-    public static T ExecuteStoredProcedure<T>(string storedProcedureName, DynamicParameters parameters, string returnName)
+    public static async Task<T> ExecuteStoredProcedureAsync<T>(string storedProcedureName, DynamicParameters parameters, string returnName)
     {
       using (var con = new OracleConnection(GetConnectionString()))
       {
         try
         {
-          con.Open();
-          con.Execute(storedProcedureName, parameters, commandType: CommandType.StoredProcedure);
+          await con.OpenAsync();
+          await con.ExecuteAsync(storedProcedureName, parameters, commandType: CommandType.StoredProcedure);
           T result = parameters.Get<T>(returnName);
           return result;
         }
@@ -215,7 +216,7 @@ namespace siare.Server.Helpers
         }
         finally
         {
-          con.Close();
+          await con.CloseAsync();
         }
       }
     }

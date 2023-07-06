@@ -21,6 +21,14 @@ namespace siare.Server.Repositories.Oracle.Users
     Task<User> GetUserByIdAsync(int id);
 
     /// <summary>
+    /// 指定したIDとPasswordのユーザーを非同期に取得します。
+    /// </summary>
+    /// <param name="id">ユーザーのID。</param>
+    /// <param name="passwordHash">ユーザーのパスワードハッシュ。</param>
+    /// <returns>非同期操作を表すタスク。タスクの結果は見つかった場合はユーザー、そうでない場合はnullを含みます。</returns>
+    Task<User> GetUserByIdAndPasswordAsync(int id, string passwordHash);
+
+    /// <summary>
     /// 新たなユーザーを非同期に作成します。
     /// </summary>
     /// <param name="user">作成するユーザー。</param>

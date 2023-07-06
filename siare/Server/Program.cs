@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using siare.Server.Repositories.Oracle.Sessions;
 using siare.Server.Repositories.Oracle.Users;
+using siare.Server.Services.Auth;
 
 namespace siare
 {
@@ -10,6 +12,8 @@ namespace siare
       var builder = WebApplication.CreateBuilder(args);
 
       // Add services to the container.
+      builder.Services.AddScoped<IAuthService, AuthService>();
+      builder.Services.AddScoped<ISessionRepository, SessionRepository>();
       builder.Services.AddScoped<IUserRepository, UserRepository>();
 
       builder.Services.AddControllersWithViews();

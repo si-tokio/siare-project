@@ -1,4 +1,6 @@
-﻿@inject HttpClient Http
+﻿@using System.Net;
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <div class="top-row ps-3 navbar navbar-dark">
   <div class="container-fluid">
@@ -59,12 +61,21 @@
     var response = await Http.PostAsync("api/accounts/logout", null);
     if (response.IsSuccessStatusCode)
     {
-      // TODO: ログアウト後の処理（例：ログインページへのリダイレクト）
+      // ログアウト後の処理（例：ログインページへのリダイレクト）
+      NavigationManager.NavigateTo("/login");
     }
     else
     {
-      // TODO: エラーハンドリング
+      // エラーハンドリング
+      if (response.StatusCode == HttpStatusCode.Unauthorized)
+      {
+        Console.WriteLine("Your login session has expired. Please log in again.");
+      }
+      else
+      {
+        var errorMessage = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Logout failed: {errorMessage}");
+      }
     }
   }
-
 }

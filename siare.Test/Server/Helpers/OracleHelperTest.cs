@@ -7,9 +7,9 @@ namespace siare.Test.Server.Helpers
   public class OracleHelperTest
   {
     [TestMethod]
-    public void TestGetUsers()
+    public async void TestGetUsers()
     {
-      var results = OracleHelper.Get<User>("SELECT * FROM users");
+      var results = await OracleHelper.GetAsync<User>("SELECT * FROM users");
       Assert.IsNotNull(results);
     }
   }
