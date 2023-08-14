@@ -47,8 +47,8 @@ namespace siare.Server.Controllers
         var expiresAt = SessionHelper.GetExpirationDate(7);
         await _sessionRepository.CreateSessionAsync(sessionId, user.UserId, expiresAt);
 
-        // 3. JWTトークンの生成
-        var token = _authService.GenerateJwtToken(user.UserId.ToString(), sessionId);
+        // 3. JWTトークンの生成→使わないことにした
+        //var token = _authService.GenerateJwtToken(user.UserId.ToString(), sessionId);
 
         // 4. 生成したトークンをクライアントに返す
         //return Ok(new { Token = token });
@@ -58,7 +58,7 @@ namespace siare.Server.Controllers
           HttpOnly = true,
           Expires = expiresAt,
         };
-        Response.Cookies.Append("jwtToken", token, cookieOptions);
+        Response.Cookies.Append("SessionId", sessionId, cookieOptions);
 
         return Ok();
       }
@@ -90,27 +90,27 @@ namespace siare.Server.Controllers
     {
       try
       {
-        // 1. "jwtToken"というクッキーの内容を取得
-        var jwtTokenCookie = Request.Cookies["jwtToken"];
-        if (string.IsNullOrEmpty(jwtTokenCookie))
+        // 1. "SessionId"というクッキーの内容を取得
+        var sessionId = Request.Cookies["SessionId"];
+        if (string.IsNullOrEmpty(sessionId))
         {
           // Cookieが存在しない場合はUnauthorizedを返す
           return Unauthorized();
         }
 
-        // 2. トークンからuserIdとsessionIdを取り出す
-        var (userId, sessionId) = _authService.DecodeJwtToken(jwtTokenCookie);
-        if (userId == null || sessionId == null)
-        {
-          // トークンが正しくデコードできない場合はUnauthorizedを返す
-          return Unauthorized();
-        }
+        // 2. トークンからuserIdとsessionIdを取り出す→使わないことにした
+        //var (userId, sessionId) = _authService.DecodeJwtToken(sessionId);
+        //if (userId == null || sessionId == null)
+        //{
+        //  // トークンが正しくデコードできない場合はUnauthorizedを返す
+        //  return Unauthorized();
+        //}
 
-        // 3. userIdとsessionIdをもとにsessionsテーブルから該当するsession情報を削除する
-        await _sessionRepository.DeleteSessionAsync(sessionId, userId);
+        // 3. sessionIdをもとにsessionsテーブルから該当するsession情報を削除する
+        await _sessionRepository.DeleteSessionAsync(sessionId);
 
         // 4. クッキーを削除する
-        Response.Cookies.Delete("jwtToken");
+        Response.Cookies.Delete("SessionId");
 
         // 5. OKを返す
         return Ok();

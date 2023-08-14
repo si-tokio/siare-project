@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using siare.Server.Repositories.Oracle.Sessions;
 using siare.Server.Repositories.Oracle.Users;
@@ -15,6 +16,15 @@ namespace siare
       builder.Services.AddScoped<IAuthService, AuthService>();
       builder.Services.AddScoped<ISessionRepository, SessionRepository>();
       builder.Services.AddScoped<IUserRepository, UserRepository>();
+      builder.Services.AddAuthentication("CustomAuth").AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>("CustomAuth", null);
+      builder.Services.AddAuthorization(options =>
+      {
+        options.AddPolicy("CustomPolicy", policy =>
+        {
+          policy.RequireAuthenticatedUser();
+          // 他のカスタム要件を追加することができます
+        });
+      });
 
       builder.Services.AddControllersWithViews();
       builder.Services.AddRazorPages();
@@ -36,6 +46,8 @@ namespace siare
 
       app.UseRouting();
 
+      app.UseAuthentication();
+      app.UseAuthorization();
 
       app.MapRazorPages();
       app.MapControllers();

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using siare.Shared;
 
 namespace siare.Server.Controllers
 {
+  [Authorize(Policy = "CustomPolicy")]
   [ApiController]
   [Route("[controller]")]
   public class WeatherForecastController : ControllerBase
